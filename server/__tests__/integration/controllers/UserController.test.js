@@ -292,4 +292,38 @@ describe('User /Update', () => {
     expect(res.status).toBe(401);
     expect(res.body.error).toBe('Password does not match');
   });
+
+  it('should be able to change all informations', async () => {
+    const { email, password } = await factory.create('User');
+
+    let getToken = await request(app)
+      .post('/sessions')
+      .send({ email, password });
+
+    const { token } = getToken.body;
+
+    const newPassword = 'newPassword';
+
+    const res = await request(app)
+      .put('/users')
+      .set('authorization', `Bearer ${token}`)
+      .send({
+        name: 'newName',
+        email: 'newEmail@email.com',
+        password: newPassword,
+        passwordConfirm: newPassword,
+        oldPassword: password,
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.name).toBe('newName');
+    expect(res.body.email).toBe('newEmail@email.com');
+
+    getToken = await request(app)
+      .post('/sessions')
+      .send({ email: 'newEmail@email.com', password: newPassword });
+
+    expect(res.status).toBe(200);
+    expect(getToken.body).toHaveProperty('token');
+  });
 });
