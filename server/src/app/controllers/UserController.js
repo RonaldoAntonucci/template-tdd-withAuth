@@ -54,7 +54,7 @@ class UserController {
         .when('oldPassword', (oldPassword, field) =>
           oldPassword ? field.required() : field
         ),
-      confirmPassword: Yup.string().when('password', (password, field) =>
+      passwordConfirm: Yup.string().when('password', (password, field) =>
         password ? field.required().oneOf([Yup.ref('password')]) : field
       ),
     });
@@ -71,7 +71,7 @@ class UserController {
       const userExists = await User.findOne({ where: { email } });
 
       if (userExists) {
-        return res.status(400).json({ error: 'User already exists.' });
+        return res.status(400).json({ error: 'Email already in use.' });
       }
     }
 
